@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Jabatan {
+  PM
+  SEM
+  POP
+  LOGISTIK
+  PENBAR
+  SOM
+  GSP
+  SP
+  ARK
+  QCO
+  HSEO
+  SAK
+  SE
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  nama         String
+  nomorHp      String     @unique
+  email        String     @unique
+  password     String
+  jabatan      Jabatan
+  project      Project[]
+  sppCreated   DataSpp[]  @relation("createdByUserId")
+  sppAcc1      DataSpp[]  @relation("acc1ByUserId")
+  sppAcc2      DataSpp[]  @relation("acc2ByUserId")
+  sppAccFinal  DataSpp[]  @relation("accFinalByUserId")
+  bppbCreated  DataBppb[] @relation("createdByUser")
+  bppbApprove1 DataBppb[] @relation("approve1ByUser")
+  bppbApprove2 DataBppb[] @relation("approve2ByUser")
+  bppbApprove3 DataBppb[] @relation("approve3ByUser")
+}
+
+model Project {
+  id       Int        @id @default(autoincrement())
+  kode     Int        @unique
+  nama     String
+  lokasi   String
+  userId   Int
+  user     User       @relation(fields: [userId], references: [id])
+  dataSpp  DataSpp[]
+  dataBppb DataBppb[]
+}
+
+model Material {
+  id             Int                @id @default(autoincrement())
+  nama           String
+  satuan         String
+  ukuran         String
+  jenisPekerjaan String
+  detailSpp      DetailSpp[]
+  detailBppb     DetailBppb[]
+  goodsReceipt   DataGoodsReceipt[]
+  goodsIssue     DataGoodsIssue[]
+}
+
+model DataSpp {
+  id               Int        @id @default(autoincrement())
+  projectId        Int
+  project          Project    @relation(fields: [projectId], references: [id])
+  kode             String     @unique
+  created_at       DateTime   @default(now())
+  createdByUserId  Int
+  createdByUser    User       @relation("createdByUserId", fields: [createdByUserId], references: [id])
+  acc1At           DateTime
+  acc1ByUserId     Int
+  acc1ByUser       User       @relation("acc1ByUserId", fields: [acc1ByUserId], references: [id])
+  acc2At           DateTime
+  acc2ByUserId     Int
+  acc2ByUser       User       @relation("acc2ByUserId", fields: [acc2ByUserId], references: [id])
+  accFinalAt       DateTime
+  accFinalByUserId Int
+  accFinalByUser   User       @relation("accFinalByUserId", fields: [accFinalByUserId], references: [id])
+  detailSpp        DetailSpp?
+}
+
+model DetailSpp {
+  id             Int      @id @default(autoincrement())
+  sppId          Int      @unique
+  spp            DataSpp  @relation(fields: [sppId], references: [id])
+  materialId     Int
+  material       Material @relation(fields: [materialId], references: [id])
+  volume         Int
+  satuan         String
+  ukuran         String
+  jenisPekerjaan String
+}
+
+model DataBppb {
+  id               Int         @id @default(autoincrement())
+  kode             Int         @unique
+  createdAt        DateTime    @default(now())
+  createdByUserId  Int
+  createdByUser    User        @relation("createdByUser", fields: [createdByUserId], references: [id])
+  projectId        Int
+  project          Project     @relation(fields: [projectId], references: [id])
+  approve1At       DateTime
+  approve1ByUserId Int
+  approve1ByUser   User        @relation("approve1ByUser", fields: [approve1ByUserId], references: [id])
+  approve2At       DateTime
+  approve2ByUserId Int
+  approve2ByUser   User        @relation("approve2ByUser", fields: [approve2ByUserId], references: [id])
+  approve3At       DateTime
+  approve3ByUserId Int
+  approve3ByUser   User        @relation("approve3ByUser", fields: [approve3ByUserId], references: [id])
+  detailbppb       DetailBppb?
+}
+
+model DetailBppb {
+  id         Int      @id @default(autoincrement())
+  bppbId     Int      @unique
+  bppb       DataBppb @relation(fields: [bppbId], references: [id])
+  materialId Int
+  material   Material @relation(fields: [materialId], references: [id])
+  volume     Int
+  satuan     String
+  elemenWbs  String
+}
+
+model DataGoodsReceipt {
+  id              Int      @id @default(autoincrement())
+  noMaterialMasuk Int
+  noSuratJalan    Int
+  vendor          String
+  materialId      Int
+  material        Material @relation(fields: [materialId], references: [id])
+  spesifikasi     String
+  volumenIn       Int
+  satuan          String
+}
+
+model DataGoodsIssue {
+  id          Int      @id @default(autoincrement())
+  materialId  Int
+  material    Material @relation(fields: [materialId], references: [id])
+  volumeStock Int
+  satuan      String
+  volumenOut  Int
+}
