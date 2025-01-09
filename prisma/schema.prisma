@@ -30,32 +30,39 @@ enum Jabatan {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   nama         String
-  nomorHp      String     @unique
-  email        String     @unique
+  nomorHp      String       @unique
+  email        String       @unique
   password     String
   jabatan      Jabatan
-  project      Project[]
-  sppCreated   DataSpp[]  @relation("createdByUserId")
-  sppAcc1      DataSpp[]  @relation("acc1ByUserId")
-  sppAcc2      DataSpp[]  @relation("acc2ByUserId")
-  sppAccFinal  DataSpp[]  @relation("accFinalByUserId")
-  bppbCreated  DataBppb[] @relation("createdByUser")
-  bppbApprove1 DataBppb[] @relation("approve1ByUser")
-  bppbApprove2 DataBppb[] @relation("approve2ByUser")
-  bppbApprove3 DataBppb[] @relation("approve3ByUser")
+  picProject   PicProject[]
+  sppCreated   DataSpp[]    @relation("createdByUserId")
+  sppAcc1      DataSpp[]    @relation("acc1ByUserId")
+  sppAcc2      DataSpp[]    @relation("acc2ByUserId")
+  sppAccFinal  DataSpp[]    @relation("accFinalByUserId")
+  bppbCreated  DataBppb[]   @relation("createdByUser")
+  bppbApprove1 DataBppb[]   @relation("approve1ByUser")
+  bppbApprove2 DataBppb[]   @relation("approve2ByUser")
+  bppbApprove3 DataBppb[]   @relation("approve3ByUser")
 }
 
 model Project {
-  id       Int        @id @default(autoincrement())
-  kode     Int        @unique
-  nama     String
-  lokasi   String
-  userId   Int
-  user     User       @relation(fields: [userId], references: [id])
-  dataSpp  DataSpp[]
-  dataBppb DataBppb[]
+  id         Int         @id @default(autoincrement())
+  kode       Int         @unique
+  nama       String
+  lokasi     String
+  picProject PicProject?
+  dataSpp    DataSpp[]
+  dataBppb   DataBppb[]
+}
+
+model PicProject {
+  id        Int     @id @default(autoincrement())
+  projectId Int     @unique
+  project   Project @relation(fields: [projectId], references: [id])
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
 }
 
 model Material {
@@ -91,11 +98,10 @@ model DataSpp {
 }
 
 model DetailSpp {
-  id             Int      @id @default(autoincrement())
-  sppId          Int      @unique
-  spp            DataSpp  @relation(fields: [sppId], references: [id])
-  materialId     Int
-  material       Material @relation(fields: [materialId], references: [id])
+  id             Int        @id @default(autoincrement())
+  sppId          Int        @unique
+  spp            DataSpp    @relation(fields: [sppId], references: [id])
+  material       Material[]
   volume         Int
   satuan         String
   ukuran         String
