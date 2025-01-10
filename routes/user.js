@@ -7,8 +7,9 @@ const jwt = require('jsonwebtoken')
 const router = express.Router()
 const prisma = new PrismaClient()
 
-router.get("/", (req, res) => {
-  res.send("user router ready")
+router.get("/", accessValidation, (req, res) => {
+  const { id, nama } = req.userData
+  res.send("Current user: " + id + " " + nama)
 })
 
 router.post("/register", body(["nama", "nomorHp", "email", "password", "jabatan"]).escape(), async (req, res) => {
@@ -45,11 +46,17 @@ router.post("/login", body(["email", "password"]).escape(), async (req, res) => 
     }
   })
 
-  const isEmailCorrect = email == user.email
+  const project = await prisma.picProject.findUnique({
+    where: {
+      userId: user.id
+    }
+  })
+
+  const isEmailCorrect = email == user.email;
   const isPasswordCorrect = await bcrypt.compare(password, user.password)
 
   if (isEmailCorrect && isPasswordCorrect) {
-    const userData = {id: user.id, nama: user.nama, nomorHp: user.nomorHp, email: user.email}
+    const userData = {id: user.id, nama: user.nama, nomorHp: user.nomorHp, email: user.email, jabatan: user.jabatan, projectId: project.projectId}
     const token = jwt.sign(userData, process.env.JWT_ACCESS_TOKEN)
 
     res.send(token)
@@ -58,7 +65,7 @@ router.post("/login", body(["email", "password"]).escape(), async (req, res) => 
   }
 })
 
-function accessValidtion(req, res, next) {
+function accessValidation(req, res, next) {
   const {authorization} = req.headers
   if(!authorization) {
     return res.send("Please log in")
@@ -77,4 +84,4 @@ function accessValidtion(req, res, next) {
   next()
 }
 
-module.exports = {router, accessValidtion}
+module.exports = {router, accessValidation}

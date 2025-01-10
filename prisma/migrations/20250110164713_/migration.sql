@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `DataSpp` MODIFY `kode` VARCHAR(191) NOT NULL;

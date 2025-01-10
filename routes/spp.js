@@ -1,17 +1,31 @@
-const express = require("express");
-const router = express.Router();
+const express = require('express')
+const { PrismaClient } = require("@prisma/client")
+
+const router = express.Router()
+const prisma = new PrismaClient()
 
 router.get("/", (req, res) => {
-  // lihat semua permintaan spp (bisa juga download single atau all)
-  res.send("spp router ready");
-});
 
-router.post("/input", (req, res) => {
-  // input permintaan spp
-});
+})
 
-router.post("/approval", (req, res) => {
-  // approve or not approve
-});
+router.post("/", async (req, res) => {
+  const { jabatan, id, projectId } = req.userData
+  if (jabatan == "PM" || jabatan == "SEM") {
+    return res.send("PM dan SEM tidak bisa membuat SPP")
+  }
 
-module.exports = router;
+  // receives array of objects [{}, {}, ..]
+  const data = req.body.data;
+
+  const dataSpp = await prisma.dataSpp.create({
+    data: {
+      projectId,
+      kode: "SPP Nomor 1",
+      createdByUserId: id
+    }
+  })
+
+  res.send(dataSpp)
+})
+
+module.exports = router
