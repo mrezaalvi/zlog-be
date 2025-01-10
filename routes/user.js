@@ -2,6 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const { PrismaClient } = require("@prisma/client")
 const { body } = require('express-validator')
+const jwt = require('jsonwebtoken')
 
 const router = express.Router()
 const prisma = new PrismaClient()
@@ -48,11 +49,32 @@ router.post("/login", body(["email", "password"]).escape(), async (req, res) => 
   const isPasswordCorrect = await bcrypt.compare(password, user.password)
 
   if (isEmailCorrect && isPasswordCorrect) {
-    // send jwt here
-    res.send("login successful " + email + " " + password);
+    const userData = {id: user.id, nama: user.nama, nomorHp: user.nomorHp, email: user.email}
+    const token = jwt.sign(userData, process.env.JWT_ACCESS_TOKEN)
+
+    res.send(token)
   } else {
     res.send("login failed")
   }
 })
 
-module.exports = router
+function accessValidtion(req, res, next) {
+  const {authorization} = req.headers
+  if(!authorization) {
+    return res.send("Please log in")
+  }
+
+  const token = authorization.split(" ")[1]
+  const secret = process.env.JWT_ACCESS_TOKEN
+
+  try {
+    const jwtDecode = jwt.verify(token, secret)
+    req.userData = jwtDecode
+  } catch (error) {
+    return res.send("Wrong token")
+  }
+
+  next()
+}
+
+module.exports = {router, accessValidtion}
