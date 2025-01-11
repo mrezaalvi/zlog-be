@@ -15,20 +15,31 @@ router.post("/", async (req, res) => {
     return res.send("PM dan SEM tidak bisa membuat SPP")
   }
 
-  // receives array of objects [{}, {}, ..]
-  const data = req.body.data;
-
   // upload to DataSPP
   const dataSpp = await prisma.dataSpp.create({
     data: {
       projectId,
       kode: "SPP Nomor 1",
       createdByUserId: id,
-      sppStatus: "WAITING"
     }
   })
 
   // TODO: make upload to DetailSPP
+  // receives array of objects [{}, {}, ..]
+  const data = req.body.data;
+  data.forEach(async data => {
+    await prisma.detailSpp.create({
+      data: {
+        material: data["material"],
+        spesifikasi: data["spesifikasi"],
+        volume: data["volume"],
+        satuan: data["satuan"],
+        lokasi: data["lokasi"],
+        dataSppId: dataSpp.id
+      }
+    })
+  });
+
   res.send(dataSpp);
 })
 
