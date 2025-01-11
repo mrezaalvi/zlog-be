@@ -29,7 +29,7 @@ enum Jabatan {
   SE
 }
 
-enum SppStatus {
+enum ApprovalStatus {
   APPROVED
   NOT_APPROVED
   WAITING
@@ -43,10 +43,11 @@ model User {
   password    String
   jabatan     Jabatan
   picProject  PicProject?
-  sppCreated  DataSpp[]   @relation("createdByUser")
+  sppCreated  DataSpp[]   @relation("sppCreatedByUser")
   sppAcc1     Project[]   @relation("sppAcc1")
   sppAcc2     Project[]   @relation("sppAcc2")
   sppAccFinal Project[]   @relation("sppAccFinal")
+  Bppb        Bppb[]      @relation("bppbCreatedByUser")
 }
 
 model Project {
@@ -62,6 +63,7 @@ model Project {
   sppAcc2       User         @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
   sppAccFinalId Int
   sppAccFinal   User         @relation("sppAccFinal", fields: [sppAccFinalId], references: [id])
+  bppb          Bppb[]
 }
 
 model PicProject {
@@ -84,17 +86,17 @@ model DetailSpp {
 }
 
 model DataSpp {
-  id              Int         @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   projectId       Int
-  project         Project     @relation(fields: [projectId], references: [id])
-  kode            String      @unique
-  createdAt       DateTime    @default(now())
+  project         Project        @relation(fields: [projectId], references: [id])
+  kode            String         @unique
+  createdAt       DateTime       @default(now())
   createdByUserId Int
-  createdByUser   User        @relation("createdByUser", fields: [createdByUserId], references: [id])
-  acc2Status      SppStatus   @default(WAITING)
-  acc1Status      SppStatus   @default(WAITING)
-  accFinalStatus  SppStatus   @default(WAITING)
-  sppStatus       SppStatus   @default(WAITING)
+  createdByUser   User           @relation("sppCreatedByUser", fields: [createdByUserId], references: [id])
+  acc2Status      ApprovalStatus @default(WAITING)
+  acc1Status      ApprovalStatus @default(WAITING)
+  accFinalStatus  ApprovalStatus @default(WAITING)
+  sppStatus       ApprovalStatus @default(WAITING)
   detailSpp       DetailSpp[]
 }
 
@@ -124,4 +126,31 @@ model GoodsReceiptDetail {
   spesifikasi    String
   volume         Int
   satuan         String
+}
+
+model Bppb {
+  id              Int            @id @default(autoincrement())
+  projectId       Int
+  project         Project        @relation(fields: [projectId], references: [id])
+  kode            String         @unique
+  createdAt       DateTime       @default(now())
+  createdByUserId Int
+  createdByUser   User           @relation("bppbCreatedByUser", fields: [createdByUserId], references: [id])
+  acc2Status      ApprovalStatus @default(WAITING)
+  acc1Status      ApprovalStatus @default(WAITING)
+  accFinalStatus  ApprovalStatus @default(WAITING)
+  bppbStatus      ApprovalStatus @default(WAITING)
+  detailBppb      DetailBppb[]
+}
+
+model DetailBppb {
+  id          Int    @id @default(autoincrement())
+  bppbId      Int
+  bppb        Bppb   @relation(fields: [bppbId], references: [id])
+  material    String
+  spesifikasi String
+  volume      Int
+  satuan      String
+  lokasi      String
+  namaPekerja String
 }

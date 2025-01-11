@@ -1,23 +1,19 @@
-const express = require('express')
-const { PrismaClient } = require("@prisma/client")
+const express = require("express");
+const { PrismaClient } = require("@prisma/client");
 
-const router = express.Router()
-const prisma = new PrismaClient()
+const router = express.Router();
+const prisma = new PrismaClient();
 
-router.get("/", async (req, res) => {
-  const dataSpp = await prisma.dataSpp.findMany()
-  res.send(dataSpp)
-})
+router.get("/", (req, res) => {});
 
 router.post("/", async (req, res) => {
   const { jabatan, id, projectId } = req.userData
-  const { kode } = req.body
+  const { kode, materialsData } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
-    return res.send("PM dan SEM tidak bisa membuat SPP")
+    return res.send("PM dan SEM tidak bisa membuat BPPB")
   }
 
-  // upload to DataSPP
-  const dataSpp = await prisma.dataSpp.create({
+  const dataBppb = await prisma.bppb.create({
     data: {
       projectId,
       kode,
@@ -25,27 +21,26 @@ router.post("/", async (req, res) => {
     }
   })
 
-  // receives array of objects [{}, {}, ..]
-  const data = req.body.data;
-  data.forEach(async data => {
-    await prisma.detailSpp.create({
+  materialsData.forEach(async data => {
+    await prisma.detailBppb.create({
       data: {
+        bppbId: dataBppb.id,
         material: data["material"],
         spesifikasi: data["spesifikasi"],
         volume: data["volume"],
         satuan: data["satuan"],
         lokasi: data["lokasi"],
-        dataSppId: dataSpp.id
+        namaPekerja: data["namaPekerja"]
       }
     })
   });
 
-  res.send(dataSpp);
+  res.send(dataBppb)
 })
 
 router.post("/acc", async (req, res) => {
   const { id, projectId } = req.userData
-  const { approvalStatus, dataSppId } = req.body
+  const { approvalStatus, dataBppbId } = req.body
   
   const project = await prisma.project.findUnique({
     where: {
@@ -53,14 +48,14 @@ router.post("/acc", async (req, res) => {
     }
   })
 
-  const dataSpp = await prisma.dataSpp.findUnique({
+  const dataBppb = await prisma.bppb.findUnique({
     where: {
-      id: dataSppId
+      id: dataBppbId
     }
   })
 
-  const acc2Status = dataSpp.acc2Status
-  const acc1Status = dataSpp.acc1Status
+  const acc2Status = dataBppb.acc2Status
+  const acc1Status = dataBppb.acc1Status
 
   const userAcc1 = await prisma.user.findUnique({
     where: {
@@ -79,9 +74,9 @@ router.post("/acc", async (req, res) => {
   })
 
   if (id == userAcc2.id) {
-    const acc2 = await prisma.dataSpp.update({
+    const acc2 = await prisma.bppb.update({
       where: {
-        id: dataSppId
+        id: dataBppbId
       },
       data: {
         acc2Status: approvalStatus
@@ -90,9 +85,9 @@ router.post("/acc", async (req, res) => {
 
     res.send(acc2)
   } else if (id == userAcc1.id && acc2Status == "APPROVED") {
-    const acc1 = await prisma.dataSpp.update({
+    const acc1 = await prisma.bppb.update({
       where: {
-        id: dataSppId
+        id: dataBppbId
       },
       data: {
         acc1Status: approvalStatus
@@ -101,9 +96,9 @@ router.post("/acc", async (req, res) => {
 
     res.send(acc1)
   } else if (id == userAccFinal.id && acc1Status == "APPROVED") {
-    await prisma.dataSpp.update({
+    await prisma.bppb.update({
       where: {
-        id: dataSppId
+        id: dataBppbId
       },
       data: {
         accFinalStatus: approvalStatus,
@@ -111,10 +106,10 @@ router.post("/acc", async (req, res) => {
       }
     })
 
-    res.send(dataSpp)
+    res.send(dataBppb)
   } else {
     res.send("Nothing to see here")
   }
 })
 
-module.exports = router
+module.exports = router;
