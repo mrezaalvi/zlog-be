@@ -4,8 +4,9 @@ const { PrismaClient } = require("@prisma/client")
 const router = express.Router()
 const prisma = new PrismaClient()
 
-router.get("/", (req, res) => {
-
+router.get("/", async (req, res) => {
+  const dataSpp = await prisma.dataSpp.findMany()
+  res.send(dataSpp)
 })
 
 router.post("/", async (req, res) => {
@@ -17,15 +18,92 @@ router.post("/", async (req, res) => {
   // receives array of objects [{}, {}, ..]
   const data = req.body.data;
 
+  // upload to DataSPP
   const dataSpp = await prisma.dataSpp.create({
     data: {
       projectId,
       kode: "SPP Nomor 1",
-      createdByUserId: id
+      createdByUserId: id,
+      sppStatus: "WAITING"
     }
   })
 
-  res.send(dataSpp)
+  // TODO: make upload to DetailSPP
+  res.send(dataSpp);
+})
+
+router.post("/acc", async (req, res) => {
+  const { id, projectId } = req.userData
+  const { approvalStatus, dataSppId } = req.body
+  
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId
+    }
+  })
+
+  const dataSpp = await prisma.dataSpp.findUnique({
+    where: {
+      id: dataSppId
+    }
+  })
+
+  const acc2Status = dataSpp.acc2Status
+  const acc1Status = dataSpp.acc1Status
+
+  const userAcc1 = await prisma.user.findUnique({
+    where: {
+      id: project.sppAcc1Id
+    }
+  })
+  const userAcc2 = await prisma.user.findUnique({
+    where: {
+      id: project.sppAcc2Id
+    }
+  })
+  const userAccFinal = await prisma.user.findUnique({
+    where: {
+      id: project.sppAccFinalId
+    }
+  })
+
+  if (id == userAcc2.id) {
+    const acc2 = await prisma.dataSpp.update({
+      where: {
+        id: dataSppId
+      },
+      data: {
+        acc2Status: approvalStatus
+      }
+    })
+
+    res.send(acc2)
+  } else if (id == userAcc1.id && acc2Status == "APPROVED") {
+    const acc1 = await prisma.dataSpp.update({
+      where: {
+        id: dataSppId
+      },
+      data: {
+        acc1Status: approvalStatus
+      }
+    })
+
+    res.send(acc1)
+  } else if (id == userAccFinal.id && acc1Status == "APPROVED") {
+    await prisma.dataSpp.update({
+      where: {
+        id: dataSppId
+      },
+      data: {
+        accFinalStatus: approvalStatus,
+        sppStatus: approvalStatus == "APPROVED" ? "APPROVED" : "NOT_APPROVED"
+      }
+    })
+
+    res.send(dataSpp)
+  } else {
+    res.send("Nothing to see here")
+  }
 })
 
 module.exports = router

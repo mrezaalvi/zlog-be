@@ -29,6 +29,12 @@ enum Jabatan {
   SE
 }
 
+enum SppStatus {
+  APPROVED
+  NOT_APPROVED
+  WAITING
+}
+
 model User {
   id          Int         @id @default(autoincrement())
   nama        String
@@ -38,18 +44,24 @@ model User {
   jabatan     Jabatan
   picProject  PicProject?
   sppCreated  DataSpp[]   @relation("createdByUser")
-  sppAcc1     DataSpp[]   @relation("acc1ByUser")
-  sppAcc2     DataSpp[]   @relation("acc2ByUser")
-  sppAccFinal DataSpp[]   @relation("accFinalByUser")
+  sppAcc1     Project[]   @relation("sppAcc1")
+  sppAcc2     Project[]   @relation("sppAcc2")
+  sppAccFinal Project[]   @relation("sppAccFinal")
 }
 
 model Project {
-  id         Int          @id @default(autoincrement())
-  kode       Int
-  nama       String
-  lokasi     String
-  picProject PicProject[]
-  dataSpp    DataSpp[]
+  id            Int          @id @default(autoincrement())
+  kode          Int
+  nama          String
+  lokasi        String
+  picProject    PicProject[]
+  dataSpp       DataSpp[]
+  sppAcc1Id     Int
+  sppAcc1       User         @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
+  sppAcc2Id     Int
+  sppAcc2       User         @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
+  sppAccFinalId Int
+  sppAccFinal   User         @relation("sppAccFinal", fields: [sppAccFinalId], references: [id])
 }
 
 model PicProject {
@@ -72,21 +84,16 @@ model DetailSpp {
 }
 
 model DataSpp {
-  id               Int         @id @default(autoincrement())
-  projectId        Int
-  project          Project     @relation(fields: [projectId], references: [id])
-  kode             String      @unique
-  createdAt        DateTime    @default(now())
-  createdByUserId  Int
-  createdByUser    User        @relation("createdByUser", fields: [createdByUserId], references: [id])
-  acc1At           DateTime?
-  acc1ByUserId     Int?
-  acc1ByUser       User?       @relation("acc1ByUser", fields: [acc1ByUserId], references: [id])
-  acc2At           DateTime?
-  acc2ByUserId     Int?
-  acc2ByUser       User?       @relation("acc2ByUser", fields: [acc2ByUserId], references: [id])
-  accFinalAt       DateTime?
-  accFinalByUserId Int?
-  accFinalByUser   User?       @relation("accFinalByUser", fields: [accFinalByUserId], references: [id])
-  detailSpp        DetailSpp[]
+  id              Int         @id @default(autoincrement())
+  projectId       Int
+  project         Project     @relation(fields: [projectId], references: [id])
+  kode            String      @unique
+  createdAt       DateTime    @default(now())
+  createdByUserId Int
+  createdByUser   User        @relation("createdByUser", fields: [createdByUserId], references: [id])
+  acc2Status      SppStatus   @default(WAITING)
+  acc1Status      SppStatus   @default(WAITING)
+  accFinalStatus  SppStatus   @default(WAITING)
+  sppStatus       SppStatus   @default(WAITING)
+  detailSpp       DetailSpp[]
 }
