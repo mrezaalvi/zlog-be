@@ -97,3 +97,31 @@ model DataSpp {
   sppStatus       SppStatus   @default(WAITING)
   detailSpp       DetailSpp[]
 }
+
+model Material {
+  id             Int    @id @default(autoincrement())
+  nama           String
+  satuan         String
+  ukuran         String
+  jenisPekerjaan String
+}
+
+model GoodsReceipt {
+  id                 Int                  @id @default(autoincrement())
+  noMaterialMasuk    Int
+  noSuratJalan       String
+  tanggalMasuk       DateTime
+  vendor             String
+  namaPengantar      String
+  goodsReceiptDetail GoodsReceiptDetail[]
+}
+
+model GoodsReceiptDetail {
+  id             Int          @id @default(autoincrement())
+  goodsReceiptId Int
+  goodsReceipt   GoodsReceipt @relation(fields: [goodsReceiptId], references: [id])
+  material       String
+  spesifikasi    String
+  volume         Int
+  satuan         String
+}
