@@ -4,6 +4,7 @@ const {router: userRouter, accessValidation} = require('./routes/user.js')
 const sppRouter = require('./routes/spp.js')
 const goodsReceiptRouter = require('./routes/goodsReceipt.js')
 const goodsIssueRouter = require('./routes/goodsIssue.js')
+const materialRouter = require('./routes/material.js')
 
 const app = express()
 
@@ -12,6 +13,7 @@ app.use("/user", userRouter)
 app.use("/spp", accessValidation, sppRouter)
 app.use("/goods-receipt", accessValidation, goodsReceiptRouter)
 app.use("/goods-issue", accessValidation, goodsIssueRouter)
+app.use("/material", accessValidation, materialRouter)
 
 app.get("/", (req, res) => {
   res.send("hello zlog")

@@ -4,7 +4,23 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/", (req, res) => {});
+router.get("/", async (req, res) => {
+  const goodsIssue = await prisma.bppb.findMany()
+  res.send(goodsIssue)
+});
+
+router.get("/:bppbId", async (req, res) => {
+  const goodsIssue = await prisma.bppb.findUnique({
+    where: {
+      id: parseInt(req.params.bppbId)
+    },
+    include: {
+      detailBppb: {}
+    }
+  })
+
+  res.send(goodsIssue)
+})
 
 router.post("/bppb", async (req, res) => {
   const { jabatan, id, projectId } = req.userData

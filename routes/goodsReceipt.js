@@ -4,7 +4,23 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/", (req, res) => {});
+router.get("/", async (req, res) => {
+  const goodsReceipt = await prisma.goodsReceipt.findMany()
+  res.send(goodsReceipt)
+});
+
+router.get("/:goodsReceiptId", async (req, res) => {
+  const goodsReceipt = await prisma.goodsReceipt.findUnique({
+    where: {
+      id: parseInt(req.params.goodsReceiptId)
+    },
+    include: {
+      goodsReceiptDetail: {}
+    }
+  })
+
+  res.send(goodsReceipt)
+})
 
 router.post("/", async (req, res) => {
   const { jabatan } = req.userData;
