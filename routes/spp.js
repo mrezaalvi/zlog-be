@@ -9,6 +9,16 @@ router.get("/", async (req, res) => {
   res.send(dataSpp)
 })
 
+router.get("/:sppId", async (req,res) => {
+  const spp = await prisma.dataSpp.findUnique({
+    where: {
+      id: req.params.sppId
+    }
+  })
+
+  res.send(spp)
+})
+
 router.post("/", async (req, res) => {
   const { jabatan, id, projectId } = req.userData
   const { kode } = req.body
