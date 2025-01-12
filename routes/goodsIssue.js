@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 router.get("/", (req, res) => {});
 
-router.post("/", async (req, res) => {
+router.post("/bppb", async (req, res) => {
   const { jabatan, id, projectId } = req.userData
   const { kode, materialsData } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
   res.send(dataBppb)
 })
 
-router.post("/acc", async (req, res) => {
+router.post("/bppb/acc", async (req, res) => {
   const { id, projectId } = req.userData
   const { approvalStatus, dataBppbId } = req.body
   
@@ -110,6 +110,10 @@ router.post("/acc", async (req, res) => {
   } else {
     res.send("Nothing to see here")
   }
+})
+
+router.post("/input-material-keluar", async (req, res) => {
+  
 })
 
 module.exports = router;
