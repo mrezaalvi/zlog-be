@@ -136,6 +136,9 @@ model Bppb {
   createdAt       DateTime       @default(now())
   createdByUserId Int
   createdByUser   User           @relation("bppbCreatedByUser", fields: [createdByUserId], references: [id])
+  namaPekerja     String
+  lokasi          String
+  accStatus       ApprovalStatus @default(WAITING)
   detailBppb      DetailBppb[]
 }
 
@@ -147,6 +150,4 @@ model DetailBppb {
   spesifikasi String
   volume      Int
   satuan      String
-  lokasi      String
-  namaPekerja String
 }

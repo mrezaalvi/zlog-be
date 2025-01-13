@@ -54,4 +54,22 @@ router.post("/bppb", async (req, res) => {
   res.send(dataBppb)
 })
 
+router.post("/bppb/acc", async (req, res) => {
+  const { jabatan } = req.userData
+  const { approvalStatus, dataBppbId } = req.body
+
+  if (jabatan == "LOGISTIK" || jabatan == "PENBAR") {
+    const acc = await prisma.bppb.update({
+      where: {
+        id: dataBppbId
+      },
+      data: {
+        accStatus: approvalStatus
+      }
+    })
+
+    res.send(acc)
+  }
+})
+
 module.exports = router;
