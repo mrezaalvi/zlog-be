@@ -26,13 +26,15 @@ router.get("/:goodsReceiptId", async (req, res) => {
 router.post("/", body(["noMaterialMasuk", "noSuratJalan", "tanggalMasuk", "vendor", "namaPengantar", "materialsData"]).escape(), async (req, res) => {
   const { jabatan } = req.userData;
   const {
-    noMaterialMasuk,
+    nomorMaterialMasuk,
     noSuratJalan,
     tanggalMasuk,
     vendor,
     namaPengantar,
     materialsData
-  } = req.body;
+  } = req.body
+
+  const noMaterialMasuk = parseInt(nomorMaterialMasuk)
 
   if (jabatan == "POP" || jabatan == "LOGISTIK" || jabatan == "PENBAR") {
     const goodsReceipt = await prisma.goodsReceipt.create({
@@ -57,7 +59,7 @@ router.post("/", body(["noMaterialMasuk", "noSuratJalan", "tanggalMasuk", "vendo
       })
     })
 
-    return res.send("added")
+    return res.send(goodsReceipt)
   }
 
   res.send("forbidden")
