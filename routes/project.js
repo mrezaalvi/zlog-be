@@ -15,8 +15,8 @@ router.get("/", async (req, res) => {
   res.send(projects)
 })
 
-router.post("/", body(["kode", "nama", "lokasi", "emailAcc1", "emailAcc2", "emailAccFinal"]).escape(), async (req, res) => {
-  const { kodeProjek, nama, lokasi, emailAcc1, emailAcc2, emailAccFinal } = req.body
+router.post("/", body(["nama", "lokasi", "emailAcc1", "emailAcc2", "emailAccFinal"]).escape(), async (req, res) => {
+  const { kode, nama, lokasi, emailAcc1, emailAcc2, emailAccFinal } = req.body
   const userAcc1 = await prisma.user.findUnique({
     where: {
       email: emailAcc1
@@ -37,7 +37,6 @@ router.post("/", body(["kode", "nama", "lokasi", "emailAcc1", "emailAcc2", "emai
   const sppAcc1Id = userAcc1.id
   const sppAcc2Id = userAcc2.id
   const sppAccFinalId = userAccFinal.id
-  const kode = parseInt(kodeProjek)
 
   const project = await prisma.project.create({
     data: {

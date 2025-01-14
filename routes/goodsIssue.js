@@ -23,9 +23,9 @@ router.get("/:bppbId", async (req, res) => {
   res.send(goodsIssue)
 })
 
-router.post("/bppb", body(["kode", "materialsData"]).escape(), async (req, res) => {
+router.post("/bppb", body(["kode", "namaPekerja", "lokasi"]).escape(), async (req, res) => {
   const { jabatan, id, projectId } = req.userData
-  const { kode, materialsData } = req.body
+  const { kode, materialsData, namaPekerja, lokasi } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
     return res.send("PM dan SEM tidak bisa membuat BPPB")
   }
@@ -34,6 +34,8 @@ router.post("/bppb", body(["kode", "materialsData"]).escape(), async (req, res) 
     data: {
       projectId,
       kode,
+      namaPekerja,
+      lokasi,
       createdByUserId: id,
     }
   })
@@ -46,8 +48,6 @@ router.post("/bppb", body(["kode", "materialsData"]).escape(), async (req, res) 
         spesifikasi: data["spesifikasi"],
         volume: data["volume"],
         satuan: data["satuan"],
-        lokasi: data["lokasi"],
-        namaPekerja: data["namaPekerja"]
       }
     })
   });
@@ -55,7 +55,7 @@ router.post("/bppb", body(["kode", "materialsData"]).escape(), async (req, res) 
   res.send(dataBppb)
 })
 
-router.post("/bppb/acc", body(["approvalStatus", "dataBppbId"]).escape(), async (req, res) => {
+router.post("/bppb/acc", body(["approvalStatus"]).escape(), async (req, res) => {
   const { jabatan } = req.userData
   const { approvalStatus, dataBppbId } = req.body
 

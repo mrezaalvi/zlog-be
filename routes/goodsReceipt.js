@@ -1,68 +1,75 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-const { body } = require("express-validator")
+const { body } = require("express-validator");
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 router.get("/", async (req, res) => {
-  const goodsReceipt = await prisma.goodsReceipt.findMany()
-  res.send(goodsReceipt)
+  const goodsReceipt = await prisma.goodsReceipt.findMany();
+  res.send(goodsReceipt);
 });
 
 router.get("/:goodsReceiptId", async (req, res) => {
   const goodsReceipt = await prisma.goodsReceipt.findUnique({
     where: {
-      id: parseInt(req.params.goodsReceiptId)
+      id: parseInt(req.params.goodsReceiptId),
     },
     include: {
-      goodsReceiptDetail: {}
-    }
-  })
+      goodsReceiptDetail: {},
+    },
+  });
 
-  res.send(goodsReceipt)
-})
-
-router.post("/", body(["noMaterialMasuk", "noSuratJalan", "tanggalMasuk", "vendor", "namaPengantar", "materialsData"]).escape(), async (req, res) => {
-  const { jabatan } = req.userData;
-  const {
-    nomorMaterialMasuk,
-    noSuratJalan,
-    tanggalMasuk,
-    vendor,
-    namaPengantar,
-    materialsData
-  } = req.body
-
-  const noMaterialMasuk = parseInt(nomorMaterialMasuk)
-
-  if (jabatan == "POP" || jabatan == "LOGISTIK" || jabatan == "PENBAR") {
-    const goodsReceipt = await prisma.goodsReceipt.create({
-      data: {
-        noMaterialMasuk,
-        noSuratJalan,
-        tanggalMasuk,
-        vendor,
-        namaPengantar,
-      },
-    });
-
-    materialsData.forEach(async data => {
-      await prisma.goodsReceiptDetail.create({
-        data: {
-          goodsReceiptId: goodsReceipt.id,
-          material: data["material"],
-          spesifikasi: data["spesifikasi"],
-          volume: data["volume"],
-          satuan: data["satuan"]
-        }
-      })
-    })
-
-    return res.send(goodsReceipt)
-  }
-
-  res.send("forbidden")
+  res.send(goodsReceipt);
 });
+
+router.post(
+  "/",
+  body([
+    "noSuratJalan",
+    "tanggalMasuk",
+    "vendor",
+    "namaPengantar",
+  ]).escape(),
+  async (req, res) => {
+    const { jabatan } = req.userData;
+    const {
+      noMaterialMasuk,
+      noSuratJalan,
+      tanggalMasuk,
+      vendor,
+      namaPengantar,
+      data,
+    } = req.body;
+
+    if (jabatan == "POP" || jabatan == "LOGISTIK" || jabatan == "PENBAR") {
+      const goodsReceipt = await prisma.goodsReceipt.create({
+        data: {
+          noMaterialMasuk,
+          noSuratJalan,
+          tanggalMasuk,
+          vendor,
+          namaPengantar,
+        },
+      });
+
+      data.forEach(async data => {
+        await prisma.goodsReceiptDetail.create({
+          data: {
+            goodsReceiptId: goodsReceipt.id,
+            material: data["material"],
+            spesifikasi: data["spesifikasi"],
+            volume: data["volume"],
+            satuan: data["satuan"]
+          }
+        })
+      })
+      
+      return res.send(goodsReceipt);
+    }
+
+    res.send("forbidden");
+  }
+);
 
 module.exports = router;
