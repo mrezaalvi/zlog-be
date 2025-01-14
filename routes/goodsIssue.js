@@ -55,7 +55,7 @@ router.post("/bppb", body(["kode", "materialsData"]).escape(), async (req, res) 
   res.send(dataBppb)
 })
 
-router.post("/bppb/acc", body(["approvalStatus", "dataBppbId"]), async (req, res) => {
+router.post("/bppb/acc", body(["approvalStatus", "dataBppbId"]).escape(), async (req, res) => {
   const { jabatan } = req.userData
   const { approvalStatus, dataBppbId } = req.body
 
