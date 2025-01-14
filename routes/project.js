@@ -52,7 +52,7 @@ router.post("/", body(["nama", "lokasi", "emailAcc1", "emailAcc2", "emailAccFina
   res.send(project);
 })
 
-router.post("/pic", async (req, res) => {
+router.post("/pic", body(["emailPM", "emailSEM", "emailPOP", "emailLogistik", "emailPenbar", "emailSOM", "emailGSP", "emailSP", "emailARK", "emailQCO", "emailHSEO", "emailSAK", "emailSE"]), async (req, res) => {
   const { projectId, emailPM, emailSEM, emailPOP, emailLogistik, emailPenbar, emailSOM, emailGSP, emailSP, emailARK, emailQCO, emailHSEO, emailSAK, emailSE } = req.body
 
   const PM = await prisma.user.findUnique({
