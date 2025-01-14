@@ -1,5 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const { body } = require("express-validator")
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -22,7 +23,7 @@ router.get("/:goodsReceiptId", async (req, res) => {
   res.send(goodsReceipt)
 })
 
-router.post("/", async (req, res) => {
+router.post("/", body(["noMaterialMasuk", "noSuratJalan", "tanggalMasuk", "vendor", "namaPengantar", "materialsData"]).escape(), async (req, res) => {
   const { jabatan } = req.userData;
   const {
     noMaterialMasuk,

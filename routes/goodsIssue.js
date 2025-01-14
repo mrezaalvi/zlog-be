@@ -1,5 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const { body } = require("express-validator")
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -22,7 +23,7 @@ router.get("/:bppbId", async (req, res) => {
   res.send(goodsIssue)
 })
 
-router.post("/bppb", async (req, res) => {
+router.post("/bppb", body(["kode", "materialsData"]).escape(), async (req, res) => {
   const { jabatan, id, projectId } = req.userData
   const { kode, materialsData } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
@@ -54,7 +55,7 @@ router.post("/bppb", async (req, res) => {
   res.send(dataBppb)
 })
 
-router.post("/bppb/acc", async (req, res) => {
+router.post("/bppb/acc", body(["approvalStatus", "dataBppbId"]), async (req, res) => {
   const { jabatan } = req.userData
   const { approvalStatus, dataBppbId } = req.body
 
