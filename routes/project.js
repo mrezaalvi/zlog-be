@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     }
   })
 
-  res.send(projects);
+  res.send(projects)
 })
 
 router.get("/:id", async (req, res) => {

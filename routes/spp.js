@@ -50,6 +50,22 @@ router.get("/:sppId", async (req,res) => {
   const spp = await prisma.dataSpp.findUnique({
     where: {
       id: parseInt(req.params.sppId)
+    },
+    include: {
+      detailSpp: {}
+    }
+  })
+
+  res.send(spp)
+})
+
+router.get("/kode/:kode", async (req,res) => {
+  const spp = await prisma.dataSpp.findUnique({
+    where: {
+      kode: req.params.kode
+    },
+    include: {
+      detailSpp: {}
     }
   })
 
