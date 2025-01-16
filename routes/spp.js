@@ -141,7 +141,8 @@ router.post("/acc", body(["approvalStatus, dataSppId"]).escape(), async (req, re
         id: dataSppId
       },
       data: {
-        acc2Status: approvalStatus
+        acc2Status: approvalStatus,
+        sppStatus: approvalStatus == "NOT_APPROVED" ? "NOT_APPROVED" : "WAITING"
       }
     })
 
@@ -152,7 +153,8 @@ router.post("/acc", body(["approvalStatus, dataSppId"]).escape(), async (req, re
         id: dataSppId
       },
       data: {
-        acc1Status: approvalStatus
+        acc1Status: approvalStatus,
+        sppStatus: approvalStatus == "NOT_APPROVED" ? "NOT_APPROVED" : "WAITING"
       }
     })
 
