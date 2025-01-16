@@ -8,8 +8,7 @@ const router = express.Router()
 const prisma = new PrismaClient()
 
 router.get("/", accessValidation, (req, res) => {
-  const { id, nama } = req.userData
-  res.send("Current user: " + id + " " + nama)
+  res.send(req.userData)
 })
 
 router.post("/register", body(["nama", "nomorHp", "email", "password", "jabatan"]).escape(), async (req, res) => {
@@ -59,7 +58,7 @@ router.post("/login", body(["email", "password"]).escape(), async (req, res) => 
     const userData = {id: user.id, nama: user.nama, nomorHp: user.nomorHp, email: user.email, jabatan: user.jabatan, projectId: project.projectId}
     const token = jwt.sign(userData, process.env.JWT_ACCESS_TOKEN)
 
-    res.send(token)
+    res.send({token, userData});
   } else {
     res.send("login failed")
   }

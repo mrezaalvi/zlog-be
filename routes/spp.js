@@ -6,8 +6,44 @@ const router = express.Router()
 const prisma = new PrismaClient()
 
 router.get("/", async (req, res) => {
-  const dataSpp = await prisma.dataSpp.findMany()
-  res.send(dataSpp)
+  const { id, projectId } = req.userData
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId
+    }
+  })
+  
+  const sppNoAcc2 = await prisma.dataSpp.findMany({
+    where: {
+      acc2Status: "WAITING"
+    }
+  })
+  const sppNoAcc1 = await prisma.dataSpp.findMany({
+    where: {
+      acc2Status: "APPROVED" || "NOT_APPROVED",
+      acc1Status: "WAITING"
+    }
+  })
+  const sppNoAccFinal = await prisma.dataSpp.findMany({
+    where: {
+      acc2Status: "APPROVED" || "NOT_APPROVED",
+      acc1Status: "APPROVED" || "NOT_APPROVED",
+      accFinalStatus: "WAITING"
+    }
+  })
+
+  let listSpp = []
+
+  if (id == project.sppAcc2Id) {
+    return res.send(sppNoAcc2)
+  } else if (id == project.sppAcc1Id) {
+    return res.send(sppNoAcc1)
+  } else if (id == project.sppAccFinalId) {
+    return res.send(sppNoAccFinal)
+  } else {
+    return res.send([])
+  }
+  
 })
 
 router.get("/:sppId", async (req,res) => {
@@ -18,6 +54,16 @@ router.get("/:sppId", async (req,res) => {
   })
 
   res.send(spp)
+})
+
+router.get("/detail/:sppId", async (req,res) => {
+  const detailSpp = await prisma.detailSpp.findMany({
+    where: {
+      dataSppId: parseInt(req.params.sppId)
+    }
+  })
+
+  res.send(detailSpp)
 })
 
 router.post("/", body("kode").escape(), async (req, res) => {
@@ -37,7 +83,7 @@ router.post("/", body("kode").escape(), async (req, res) => {
   })
 
   // receives array of objects [{}, {}, ..]
-  const data = req.body.data;
+  const data = req.body.data
   data.forEach(async data => {
     await prisma.detailSpp.create({
       data: {
