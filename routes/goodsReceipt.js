@@ -27,7 +27,6 @@ router.post(
   "/",
   body([
     "noSuratJalan",
-    "tanggalMasuk",
     "vendor",
     "namaPengantar",
   ]).escape(),
@@ -59,7 +58,7 @@ router.post(
             goodsReceiptId: goodsReceipt.id,
             material: data["material"],
             spesifikasi: data["spesifikasi"],
-            volume: data["volume"],
+            volume: parseInt(data["volume"]),
             satuan: data["satuan"]
           }
         })
