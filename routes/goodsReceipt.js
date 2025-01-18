@@ -25,7 +25,12 @@ router.get("/:goodsReceiptId", async (req, res) => {
 
 router.post(
   "/",
-  body(["noSuratJalan", "tanggalMasuk", "vendor", "namaPengantar"]).escape(),
+  body([
+    "noSuratJalan",
+    "tanggalMasuk",
+    "vendor",
+    "namaPengantar",
+  ]).escape(),
   async (req, res) => {
     const { jabatan } = req.userData;
     const {
@@ -34,6 +39,7 @@ router.post(
       tanggalMasuk,
       vendor,
       namaPengantar,
+      data,
     } = req.body;
 
     if (jabatan == "POP" || jabatan == "LOGISTIK" || jabatan == "PENBAR") {
@@ -47,30 +53,23 @@ router.post(
         },
       });
 
+      data.forEach(async data => {
+        await prisma.goodsReceiptDetail.create({
+          data: {
+            goodsReceiptId: goodsReceipt.id,
+            material: data["material"],
+            spesifikasi: data["spesifikasi"],
+            volume: data["volume"],
+            satuan: data["satuan"]
+          }
+        })
+      })
+      
       return res.send(goodsReceipt);
     }
 
     res.send("forbidden");
   }
 );
-
-router.post("/detail", async (req, res) => {
-  const { data, goodsReceiptId } = req.body
-  const { jabatan } = req.userData
-
-  if (jabatan == "POP" || jabatan == "LOGISTIK" || jabatan == "PENBAR") {
-    data.forEach(async d => {
-      await prisma.goodsReceiptDetail.create({
-        data: {
-          goodsReceiptId,
-          material: d["material"],
-          spesifikasi: d["spesifikasi"],
-          volume: d["volume"],
-          satuan: d["satuan"],
-        },
-      });
-    })
-  }
-})
 
 module.exports = router;
