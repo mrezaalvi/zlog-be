@@ -46,7 +46,6 @@ model User {
   sppCreated  DataSpp[]   @relation("sppCreatedByUser")
   sppAcc1     Project[]   @relation("sppAcc1")
   sppAcc2     Project[]   @relation("sppAcc2")
-  sppAccFinal Project[]   @relation("sppAccFinal")
   Bppb        Bppb[]      @relation("bppbCreatedByUser")
 }
 
@@ -61,8 +60,6 @@ model Project {
   sppAcc1       User         @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
   sppAcc2Id     Int
   sppAcc2       User         @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
-  sppAccFinalId Int
-  sppAccFinal   User         @relation("sppAccFinal", fields: [sppAccFinalId], references: [id])
   bppb          Bppb[]
 }
 
@@ -97,7 +94,6 @@ model DataSpp {
   createdByUser   User           @relation("sppCreatedByUser", fields: [createdByUserId], references: [id])
   acc2Status      ApprovalStatus @default(WAITING)
   acc1Status      ApprovalStatus @default(WAITING)
-  accFinalStatus  ApprovalStatus @default(WAITING)
   sppStatus       ApprovalStatus @default(WAITING)
   detailSpp       DetailSpp[]
 }
