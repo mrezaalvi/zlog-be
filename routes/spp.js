@@ -133,7 +133,6 @@ router.post("/acc", body(["approvalStatus, dataSppId"]).escape(), async (req, re
   })
 
   const acc2Status = dataSpp.acc2Status
-  const acc1Status = dataSpp.acc1Status
 
   const userAcc1 = await prisma.user.findUnique({
     where: {
@@ -143,11 +142,6 @@ router.post("/acc", body(["approvalStatus, dataSppId"]).escape(), async (req, re
   const userAcc2 = await prisma.user.findUnique({
     where: {
       id: project.sppAcc2Id
-    }
-  })
-  const userAccFinal = await prisma.user.findUnique({
-    where: {
-      id: project.sppAccFinalId
     }
   })
 
@@ -175,18 +169,6 @@ router.post("/acc", body(["approvalStatus, dataSppId"]).escape(), async (req, re
     })
 
     res.send(acc1)
-  } else if (id == userAccFinal.id && acc1Status == "APPROVED") {
-    await prisma.dataSpp.update({
-      where: {
-        id: dataSppId
-      },
-      data: {
-        accFinalStatus: approvalStatus,
-        sppStatus: approvalStatus == "APPROVED" ? "APPROVED" : "NOT_APPROVED"
-      }
-    })
-
-    res.send(dataSpp)
   } else {
     res.send("Nothing to see here")
   }
