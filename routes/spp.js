@@ -35,6 +35,17 @@ router.get("/", async (req, res) => {
   
 })
 
+router.get("/latest", async (req, res) => {
+  const latestSpp = await prisma.dataSpp.findFirst({
+    orderBy: {
+      id: "desc"
+    },
+    take: 1
+  })
+
+  res.send(latestSpp)
+})
+
 router.get("/:sppId", async (req,res) => {
   const spp = await prisma.dataSpp.findUnique({
     where: {
@@ -48,30 +59,7 @@ router.get("/:sppId", async (req,res) => {
   res.send(spp)
 })
 
-router.get("/kode/:kode", async (req,res) => {
-  const spp = await prisma.dataSpp.findUnique({
-    where: {
-      kode: req.params.kode
-    },
-    include: {
-      detailSpp: {}
-    }
-  })
-
-  res.send(spp)
-})
-
-router.get("/detail/:sppId", async (req,res) => {
-  const detailSpp = await prisma.detailSpp.findMany({
-    where: {
-      dataSppId: parseInt(req.params.sppId)
-    }
-  })
-
-  res.send(detailSpp)
-})
-
-router.post("/", body("kode").escape(), async (req, res) => {
+router.post("/", async (req, res) => {
   const { jabatan, id, projectId } = req.userData
   const { kode } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
