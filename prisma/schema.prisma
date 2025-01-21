@@ -36,31 +36,31 @@ enum ApprovalStatus {
 }
 
 model User {
-  id          Int         @id @default(autoincrement())
-  nama        String
-  nomorHp     String      @unique
-  email       String      @unique
-  password    String
-  jabatan     Jabatan
-  picProject  PicProject[]
-  sppCreated  DataSpp[]   @relation("sppCreatedByUser")
-  sppAcc1     Project[]   @relation("sppAcc1")
-  sppAcc2     Project[]   @relation("sppAcc2")
-  Bppb        Bppb[]      @relation("bppbCreatedByUser")
+  id         Int          @id @default(autoincrement())
+  nama       String
+  nomorHp    String       @unique
+  email      String       @unique
+  password   String
+  jabatan    Jabatan
+  picProject PicProject[]
+  sppCreated DataSpp[]    @relation("sppCreatedByUser")
+  sppAcc1    Project[]    @relation("sppAcc1")
+  sppAcc2    Project[]    @relation("sppAcc2")
+  Bppb       Bppb[]       @relation("bppbCreatedByUser")
 }
 
 model Project {
-  id            Int          @id @default(autoincrement())
-  kode          Int
-  nama          String
-  lokasi        String
-  picProject    PicProject[]
-  dataSpp       DataSpp[]
-  sppAcc1Id     Int
-  sppAcc1       User         @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
-  sppAcc2Id     Int
-  sppAcc2       User         @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
-  bppb          Bppb[]
+  id         Int          @id @default(autoincrement())
+  kode       Int
+  nama       String
+  lokasi     String
+  picProject PicProject[]
+  dataSpp    DataSpp[]
+  sppAcc1Id  Int
+  sppAcc1    User         @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
+  sppAcc2Id  Int
+  sppAcc2    User         @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
+  bppb       Bppb[]
 }
 
 model PicProject {
@@ -135,7 +135,6 @@ model Bppb {
   createdByUserId Int
   createdByUser   User           @relation("bppbCreatedByUser", fields: [createdByUserId], references: [id])
   namaPekerja     String
-  lokasi          String
   accStatus       ApprovalStatus @default(WAITING)
   detailBppb      DetailBppb[]
 }
@@ -148,4 +147,5 @@ model DetailBppb {
   spesifikasi String
   volume      Int
   satuan      String
+  lokasi      String
 }
