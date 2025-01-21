@@ -75,7 +75,7 @@ model DetailSpp {
   id          Int     @id @default(autoincrement())
   material    String
   spesifikasi String
-  volume      String
+  volume      Int
   satuan      String
   lokasi      String
   dataSppId   Int

@@ -24,22 +24,11 @@ router.get("/", async (req, res) => {
       acc1Status: "WAITING"
     }
   })
-  const sppNoAccFinal = await prisma.dataSpp.findMany({
-    where: {
-      acc2Status: "APPROVED" || "NOT_APPROVED",
-      acc1Status: "APPROVED" || "NOT_APPROVED",
-      accFinalStatus: "WAITING"
-    }
-  })
-
-  let listSpp = []
 
   if (id == project.sppAcc2Id) {
     return res.send(sppNoAcc2)
   } else if (id == project.sppAcc1Id) {
     return res.send(sppNoAcc1)
-  } else if (id == project.sppAccFinalId) {
-    return res.send(sppNoAccFinal)
   } else {
     return res.send([])
   }
@@ -105,7 +94,7 @@ router.post("/", body("kode").escape(), async (req, res) => {
       data: {
         material: data["material"],
         spesifikasi: data["spesifikasi"],
-        volume: data["volume"],
+        volume: parseInt(data["volume"]),
         satuan: data["satuan"],
         lokasi: data["lokasi"],
         dataSppId: dataSpp.id
