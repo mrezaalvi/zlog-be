@@ -42,7 +42,7 @@ model User {
   email      String       @unique
   password   String
   jabatan    Jabatan
-  picProject PicProject[]
+  picProject PicProject?
   sppCreated DataSpp[]    @relation("sppCreatedByUser")
   sppAcc1    Project[]    @relation("sppAcc1")
   sppAcc2    Project[]    @relation("sppAcc2")

@@ -25,7 +25,7 @@ router.get("/:bppbId", async (req, res) => {
 
 router.post("/bppb", body(["kode", "namaPekerja", "lokasi"]).escape(), async (req, res) => {
   const { jabatan, id, projectId } = req.userData
-  const { kode, materialsData, namaPekerja, lokasi } = req.body
+  const { kode, materialsData, namaPekerja } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
     return res.send("PM dan SEM tidak bisa membuat BPPB")
   }
@@ -35,7 +35,6 @@ router.post("/bppb", body(["kode", "namaPekerja", "lokasi"]).escape(), async (re
       projectId,
       kode,
       namaPekerja,
-      lokasi,
       createdByUserId: id,
     }
   })
@@ -46,8 +45,9 @@ router.post("/bppb", body(["kode", "namaPekerja", "lokasi"]).escape(), async (re
         bppbId: dataBppb.id,
         material: data["material"],
         spesifikasi: data["spesifikasi"],
-        volume: data["volume"],
+        volume: parseInt(data["volume"]),
         satuan: data["satuan"],
+        lokasi: data["lokasi"],
       }
     })
   });
