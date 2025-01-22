@@ -106,7 +106,7 @@ model Material {
 
 model GoodsReceipt {
   id                 Int                  @id @default(autoincrement())
-  noMaterialMasuk    Int
+  noMaterialMasuk    String
   noSuratJalan       String
   tanggalMasuk       DateTime
   vendor             String

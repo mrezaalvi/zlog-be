@@ -10,6 +10,17 @@ router.get("/", async (req, res) => {
   res.send(goodsReceipt);
 });
 
+router.get("/latest", async (req, res) => {
+  const goodsReceipt = await prisma.goodsReceipt.findFirst({
+    orderBy: {
+      id: "desc"
+    },
+    take: 1
+  });
+
+  res.send(goodsReceipt);
+});
+
 router.get("/:goodsReceiptId", async (req, res) => {
   const goodsReceipt = await prisma.goodsReceipt.findUnique({
     where: {
@@ -26,7 +37,6 @@ router.get("/:goodsReceiptId", async (req, res) => {
 router.post(
   "/",
   body([
-    "noSuratJalan",
     "vendor",
     "namaPengantar",
   ]).escape(),
