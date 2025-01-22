@@ -13,9 +13,9 @@ router.get("/", async (req, res) => {
 router.get("/latest", async (req, res) => {
   const goodsReceipt = await prisma.goodsReceipt.findFirst({
     orderBy: {
-      id: "desc"
+      id: "desc",
     },
-    take: 1
+    take: 1,
   });
 
   res.send(goodsReceipt);
@@ -36,10 +36,7 @@ router.get("/:goodsReceiptId", async (req, res) => {
 
 router.post(
   "/",
-  body([
-    "vendor",
-    "namaPengantar",
-  ]).escape(),
+  body(["vendor", "namaPengantar"]).escape(),
   async (req, res) => {
     const { jabatan } = req.userData;
     const {
@@ -62,18 +59,18 @@ router.post(
         },
       });
 
-      data.forEach(async data => {
+      data.forEach(async (data) => {
         await prisma.goodsReceiptDetail.create({
           data: {
             goodsReceiptId: goodsReceipt.id,
             material: data["material"],
             spesifikasi: data["spesifikasi"],
             volume: parseInt(data["volume"]),
-            satuan: data["satuan"]
-          }
-        })
-      })
-      
+            satuan: data["satuan"],
+          },
+        });
+      });
+
       return res.send(goodsReceipt);
     }
 

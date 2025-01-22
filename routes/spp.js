@@ -1,69 +1,73 @@
-const express = require('express')
-const { PrismaClient } = require("@prisma/client")
-const { body } = require("express-validator")
+const express = require("express");
+const { PrismaClient } = require("@prisma/client");
+const { body } = require("express-validator");
 
-const router = express.Router()
-const prisma = new PrismaClient()
+const router = express.Router();
+const prisma = new PrismaClient();
 
 router.get("/", async (req, res) => {
-  const { id, projectId } = req.userData
+  const { id, projectId } = req.userData;
   const project = await prisma.project.findUnique({
     where: {
-      id: projectId
-    }
-  })
-  
+      id: projectId,
+    },
+  });
+
   const sppNoAcc2 = await prisma.dataSpp.findMany({
     where: {
-      acc2Status: "WAITING"
-    }
-  })
+      acc2Status: "WAITING",
+    },
+  });
   const sppNoAcc1 = await prisma.dataSpp.findMany({
     where: {
       acc2Status: "APPROVED" || "NOT_APPROVED",
-      acc1Status: "WAITING"
-    }
-  })
+      acc1Status: "WAITING",
+    },
+  });
 
   if (id == project.sppAcc2Id) {
-    return res.send(sppNoAcc2)
+    return res.send(sppNoAcc2);
   } else if (id == project.sppAcc1Id) {
-    return res.send(sppNoAcc1)
+    return res.send(sppNoAcc1);
   } else {
-    return res.send([])
+    return res.send([]);
   }
-  
-})
+});
+
+router.get("/all", async (req, res) => {
+  const spp = await prisma.dataSpp.findMany();
+  res.send(spp);
+});
 
 router.get("/latest", async (req, res) => {
   const latestSpp = await prisma.dataSpp.findFirst({
     orderBy: {
-      id: "desc"
+      id: "desc",
     },
-    take: 1
-  })
+    take: 1,
+  });
 
-  res.send(latestSpp)
-})
+  res.send(latestSpp);
+});
 
-router.get("/:sppId", async (req,res) => {
+router.get("/:sppId", async (req, res) => {
   const spp = await prisma.dataSpp.findUnique({
     where: {
-      id: parseInt(req.params.sppId)
+      id: parseInt(req.params.sppId),
     },
     include: {
-      detailSpp: {}
-    }
-  })
+      detailSpp: {},
+    },
+  });
 
-  res.send(spp)
-})
+  res.send(spp);
+});
 
 router.post("/", async (req, res) => {
-  const { jabatan, id, projectId } = req.userData
-  const { kode } = req.body
+  const { jabatan, id, projectId } = req.userData;
+  const { kode } = req.body;
   if (jabatan == "PM" || jabatan == "SEM") {
-    return res.send("PM dan SEM tidak bisa membuat SPP")
+    return res.send("PM dan SEM tidak bisa membuat SPP");
   }
 
   // upload to DataSPP
@@ -72,12 +76,12 @@ router.post("/", async (req, res) => {
       projectId,
       kode,
       createdByUserId: id,
-    }
-  })
+    },
+  });
 
   // receives array of objects [{}, {}, ..]
-  const data = req.body.data
-  data.forEach(async data => {
+  const data = req.body.data;
+  data.forEach(async (data) => {
     await prisma.detailSpp.create({
       data: {
         material: data["material"],
@@ -85,70 +89,76 @@ router.post("/", async (req, res) => {
         volume: parseInt(data["volume"]),
         satuan: data["satuan"],
         lokasi: data["lokasi"],
-        dataSppId: dataSpp.id
-      }
-    })
+        dataSppId: dataSpp.id,
+      },
+    });
   });
 
   res.send(dataSpp);
-})
+});
 
-router.post("/acc", body(["approvalStatus, dataSppId"]).escape(), async (req, res) => {
-  const { id, projectId } = req.userData
-  const { approvalStatus, dataSppId } = req.body
-  
-  const project = await prisma.project.findUnique({
-    where: {
-      id: projectId
-    }
-  })
+router.post(
+  "/acc",
+  body(["approvalStatus, dataSppId"]).escape(),
+  async (req, res) => {
+    const { id, projectId } = req.userData;
+    const { approvalStatus, dataSppId } = req.body;
 
-  const dataSpp = await prisma.dataSpp.findUnique({
-    where: {
-      id: dataSppId
-    }
-  })
-
-  const acc2Status = dataSpp.acc2Status
-
-  const userAcc1 = await prisma.user.findUnique({
-    where: {
-      id: project.sppAcc1Id
-    }
-  })
-  const userAcc2 = await prisma.user.findUnique({
-    where: {
-      id: project.sppAcc2Id
-    }
-  })
-
-  if (id == userAcc2.id) {
-    const acc2 = await prisma.dataSpp.update({
+    const project = await prisma.project.findUnique({
       where: {
-        id: dataSppId
+        id: projectId,
       },
-      data: {
-        acc2Status: approvalStatus,
-        sppStatus: approvalStatus == "NOT_APPROVED" ? "NOT_APPROVED" : "WAITING"
-      }
-    })
+    });
 
-    res.send(acc2)
-  } else if (id == userAcc1.id && acc2Status == "APPROVED") {
-    const acc1 = await prisma.dataSpp.update({
+    const dataSpp = await prisma.dataSpp.findUnique({
       where: {
-        id: dataSppId
+        id: dataSppId,
       },
-      data: {
-        acc1Status: approvalStatus,
-        sppStatus: approvalStatus == "NOT_APPROVED" ? "NOT_APPROVED" : "WAITING"
-      }
-    })
+    });
 
-    res.send(acc1)
-  } else {
-    res.send("Nothing to see here")
+    const acc2Status = dataSpp.acc2Status;
+
+    const userAcc1 = await prisma.user.findUnique({
+      where: {
+        id: project.sppAcc1Id,
+      },
+    });
+    const userAcc2 = await prisma.user.findUnique({
+      where: {
+        id: project.sppAcc2Id,
+      },
+    });
+
+    if (id == userAcc2.id) {
+      const acc2 = await prisma.dataSpp.update({
+        where: {
+          id: dataSppId,
+        },
+        data: {
+          acc2Status: approvalStatus,
+          sppStatus:
+            approvalStatus == "NOT_APPROVED" ? "NOT_APPROVED" : "WAITING",
+        },
+      });
+
+      res.send(acc2);
+    } else if (id == userAcc1.id && acc2Status == "APPROVED") {
+      const acc1 = await prisma.dataSpp.update({
+        where: {
+          id: dataSppId,
+        },
+        data: {
+          acc1Status: approvalStatus,
+          sppStatus:
+            approvalStatus == "NOT_APPROVED" ? "NOT_APPROVED" : "WAITING",
+        },
+      });
+
+      res.send(acc1);
+    } else {
+      res.send("Nothing to see here");
+    }
   }
-})
+);
 
-module.exports = router
+module.exports = router;
