@@ -10,6 +10,15 @@ router.get("/", async (req, res) => {
   res.send(goodsIssue);
 });
 
+router.get("/bppb", async (req, res) => {
+  const bppb = await prisma.bppb.findMany({
+    include: {
+      detailBppb: {},
+    },
+  });
+  res.send(bppb);
+});
+
 router.get("/:goodsIssueId", async (req, res) => {
   const goodsIssue = await prisma.dataGoodsIssue.findUnique({
     where: {
@@ -20,15 +29,6 @@ router.get("/:goodsIssueId", async (req, res) => {
     },
   });
   res.send(goodsIssue);
-});
-
-router.get("/bppb", async (req, res) => {
-  const bppb = await prisma.bppb.findMany({
-    include: {
-      detailBppb: {},
-    },
-  });
-  res.send(bppb);
 });
 
 router.get("/bppb/latest", async (req, res) => {
