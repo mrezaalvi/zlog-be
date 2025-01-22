@@ -10,6 +10,17 @@ router.get("/", async (req, res) => {
   res.send(goodsIssue)
 });
 
+router.get("/bppb/latest", async (req, res) => {
+  const goodsIssue = await prisma.bppb.findFirst({
+    orderBy: {
+      id: "desc"
+    },
+    take: 1
+  })
+
+  res.send(goodsIssue)
+})
+
 router.get("/:bppbId", async (req, res) => {
   const goodsIssue = await prisma.bppb.findUnique({
     where: {
@@ -23,7 +34,7 @@ router.get("/:bppbId", async (req, res) => {
   res.send(goodsIssue)
 })
 
-router.post("/bppb", body(["kode", "namaPekerja", "lokasi"]).escape(), async (req, res) => {
+router.post("/bppb", body(["namaPekerja", "lokasi"]).escape(), async (req, res) => {
   const { jabatan, id, projectId } = req.userData
   const { kode, materialsData, namaPekerja } = req.body
   if (jabatan == "PM" || jabatan == "SEM") {
