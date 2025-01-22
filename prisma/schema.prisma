@@ -62,6 +62,7 @@ model Project {
   sppAcc2    User             @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
   bppb       Bppb[]
   goodsIssue DataGoodsIssue[]
+  material   DataMaterial[]
 }
 
 model PicProject {
@@ -97,12 +98,21 @@ model DataSpp {
   detailSpp       DetailSpp[]
 }
 
-model Material {
-  id             Int    @id @default(autoincrement())
+model DataMaterial {
+  id             Int              @id @default(autoincrement())
+  projectId      Int
+  project        Project          @relation(fields: [projectId], references: [id])
+  materialDetail MaterialDetail[]
+}
+
+model MaterialDetail {
+  id             Int          @id @default(autoincrement())
   nama           String
   satuan         String
-  ukuran         String
-  jenisPekerjaan String
+  volume         String
+  spesifikasi    String
+  dataMaterialId Int
+  dataMaterial   DataMaterial @relation(fields: [dataMaterialId], references: [id])
 }
 
 model GoodsReceipt {
