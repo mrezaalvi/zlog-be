@@ -36,31 +36,32 @@ enum ApprovalStatus {
 }
 
 model User {
-  id         Int          @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   nama       String
-  nomorHp    String       @unique
-  email      String       @unique
+  nomorHp    String      @unique
+  email      String      @unique
   password   String
   jabatan    Jabatan
   picProject PicProject?
-  sppCreated DataSpp[]    @relation("sppCreatedByUser")
-  sppAcc1    Project[]    @relation("sppAcc1")
-  sppAcc2    Project[]    @relation("sppAcc2")
-  Bppb       Bppb[]       @relation("bppbCreatedByUser")
+  sppCreated DataSpp[]   @relation("sppCreatedByUser")
+  sppAcc1    Project[]   @relation("sppAcc1")
+  sppAcc2    Project[]   @relation("sppAcc2")
+  Bppb       Bppb[]      @relation("bppbCreatedByUser")
 }
 
 model Project {
-  id         Int          @id @default(autoincrement())
+  id         Int              @id @default(autoincrement())
   kode       Int
   nama       String
   lokasi     String
   picProject PicProject[]
   dataSpp    DataSpp[]
   sppAcc1Id  Int
-  sppAcc1    User         @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
+  sppAcc1    User             @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
   sppAcc2Id  Int
-  sppAcc2    User         @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
+  sppAcc2    User             @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
   bppb       Bppb[]
+  goodsIssue DataGoodsIssue[]
 }
 
 model PicProject {
@@ -146,4 +147,23 @@ model DetailBppb {
   volume      Int
   satuan      String
   lokasi      String
+}
+
+model DataGoodsIssue {
+  id               Int                @id @default(autoincrement())
+  projectId        Int
+  project          Project            @relation(fields: [projectId], references: [id])
+  createdAt        DateTime           @default(now())
+  detailGoodsIssue DetailGoodsIssue[]
+}
+
+model DetailGoodsIssue {
+  id               Int            @id @default(autoincrement())
+  material         String
+  spesifikasi      String
+  volume           Int
+  volumeOut        Int
+  satuan           String
+  DataGoodsIssueId Int
+  DataGoodsIssue   DataGoodsIssue @relation(fields: [DataGoodsIssueId], references: [id])
 }

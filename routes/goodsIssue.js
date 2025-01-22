@@ -6,6 +6,23 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.get("/", async (req, res) => {
+  const goodsIssue = await prisma.detailGoodsIssue.findMany();
+  res.send(goodsIssue);
+});
+
+router.get("/:goodsIssueId", async (req, res) => {
+  const goodsIssue = await prisma.dataGoodsIssue.findUnique({
+    where: {
+      id: parseInt(req.params.goodsIssueId),
+    },
+    include: {
+      detailGoodsIssue: {},
+    },
+  });
+  res.send(goodsIssue);
+});
+
+router.get("/bppb", async (req, res) => {
   const bppb = await prisma.bppb.findMany({
     include: {
       detailBppb: {},
@@ -25,7 +42,7 @@ router.get("/bppb/latest", async (req, res) => {
   res.send(goodsIssue);
 });
 
-router.get("/:bppbId", async (req, res) => {
+router.get("/bppb/:bppbId", async (req, res) => {
   const goodsIssue = await prisma.bppb.findUnique({
     where: {
       id: parseInt(req.params.bppbId),
@@ -36,6 +53,31 @@ router.get("/:bppbId", async (req, res) => {
   });
 
   res.send(goodsIssue);
+});
+
+router.post("/", async (req, res) => {
+  const { projectId } = req.userData;
+  const { data } = req.body;
+  const dataGoodsIssue = await prisma.dataGoodsIssue.create({
+    data: {
+      projectId,
+    },
+  });
+
+  data.forEach(async (d) => {
+    await prisma.detailGoodsIssue.create({
+      data: {
+        DataGoodsIssueId: dataGoodsIssue.id,
+        material: d["material"],
+        spesifikasi: d["spesifikasi"],
+        volume: parseInt(d["volume"]),
+        volumeOut: parseInt(d["volumeOut"]),
+        satuan: d["satuan"],
+      },
+    });
+  });
+
+  res.send(dataGoodsIssue);
 });
 
 router.post(
