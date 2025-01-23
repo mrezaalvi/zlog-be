@@ -5,9 +5,10 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.get("/", async (req, res) => {
-  const material = await prisma.dataMaterial.findMany({
-    include: {
-      materialDetail: {},
+  const { projectId } = req.userData;
+  const material = await prisma.material.findMany({
+    where: {
+      projectId,
     },
   });
 
@@ -18,25 +19,22 @@ router.post("/", async (req, res) => {
   const { projectId } = req.userData;
   const { data } = req.body;
 
-  const material = await prisma.dataMaterial.create({
-    data: {
-      projectId,
-    },
-  });
-
+  const materialArr = [];
   data.forEach(async (d) => {
-    await prisma.materialDetail.create({
+    const material = await prisma.material.create({
       data: {
-        nama: d.material,
-        spesifikasi: d.spesifikasi,
+        nama: d.material.toUpperCase(),
+        spesifikasi: d.spesifikasi.toUpperCase(),
         volume: d.volume,
-        satuan: d.satuan,
-        dataMaterialId: material.id,
+        satuan: d.satuan.toUpperCase(),
+        projectId,
       },
     });
+
+    materialArr.push(material);
   });
 
-  res.send(material);
+  res.send(materialArr);
 });
 
 module.exports = router;
