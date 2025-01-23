@@ -35,7 +35,11 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/all", async (req, res) => {
-  const spp = await prisma.dataSpp.findMany();
+  const spp = await prisma.dataSpp.findMany({
+    include: {
+      detailSpp: {},
+    },
+  });
   res.send(spp);
 });
 
