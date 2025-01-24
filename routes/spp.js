@@ -4,7 +4,6 @@ const { body } = require("express-validator");
 const { PDFDocument, rgb } = require("pdf-lib");
 const fs = require("fs");
 const path = require("path");
-const process = require("process");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -190,10 +189,8 @@ router.get("/download/:sppId", async (req, res) => {
       color: rgb(0, 0, 0),
     });
 
-    // Serialize the updated PDF
     const pdfData = await pdfDoc.save();
 
-    // Set response headers
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -201,7 +198,6 @@ router.get("/download/:sppId", async (req, res) => {
     );
     res.setHeader("Content-Length", pdfData.length);
 
-    // Send the populated PDF
     res.end(pdfData);
   } catch (error) {
     console.error("Error populating PDF:", error);

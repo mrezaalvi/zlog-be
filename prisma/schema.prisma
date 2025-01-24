@@ -50,19 +50,20 @@ model User {
 }
 
 model Project {
-  id         Int              @id @default(autoincrement())
-  kode       Int
-  nama       String
-  lokasi     String
-  picProject PicProject[]
-  dataSpp    DataSpp[]
-  sppAcc1Id  Int
-  sppAcc1    User             @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
-  sppAcc2Id  Int
-  sppAcc2    User             @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
-  bppb       Bppb[]
-  goodsIssue DataGoodsIssue[]
-  material   Material[]
+  id           Int              @id @default(autoincrement())
+  kode         Int
+  nama         String
+  lokasi       String
+  picProject   PicProject[]
+  dataSpp      DataSpp[]
+  sppAcc1Id    Int
+  sppAcc1      User             @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
+  sppAcc2Id    Int
+  sppAcc2      User             @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
+  bppb         Bppb[]
+  goodsReceipt GoodsReceipt[]
+  goodsIssue   DataGoodsIssue[]
+  material     Material[]
 }
 
 model PicProject {
@@ -115,6 +116,8 @@ model GoodsReceipt {
   tanggalMasuk       DateTime
   vendor             String
   namaPengantar      String
+  projectId          Int
+  project            Project              @relation(fields: [projectId], references: [id])
   goodsReceiptDetail GoodsReceiptDetail[]
 }
 
