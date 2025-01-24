@@ -16,7 +16,7 @@ app.use(cors());
 app.use("/user", userRouter);
 app.use("/spp", accessValidation, sppRouter);
 app.use("/goods-receipt", accessValidation, goodsReceiptRouter);
-app.use("/goods-issue", goodsIssueRouter);
+app.use("/goods-issue", accessValidation, goodsIssueRouter);
 app.use("/material", accessValidation, materialRouter);
 app.use("/project", accessValidation, projectRouter);
 

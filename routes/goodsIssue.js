@@ -9,7 +9,11 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.get("/", async (req, res) => {
-  const goodsIssue = await prisma.detailGoodsIssue.findMany();
+  const goodsIssue = await prisma.dataGoodsIssue.findMany({
+    include: {
+      detailGoodsIssue: {},
+    },
+  });
   res.send(goodsIssue);
 });
 
@@ -20,6 +24,106 @@ router.get("/bppb", async (req, res) => {
     },
   });
   res.send(bppb);
+});
+
+router.get("/download", async (req, res) => {
+  const { projectId } = req.userData;
+  try {
+    const material = await prisma.material.findMany({
+      where: {
+        projectId,
+      },
+    });
+
+    const goodsIssue = await prisma.dataGoodsIssue.findMany({
+      where: {
+        projectId,
+      },
+      include: {
+        detailGoodsIssue: {},
+      },
+    });
+
+    const detailGoodsIssue = [];
+    goodsIssue.map((g) => {
+      g.detailGoodsIssue.map((d) => {
+        detailGoodsIssue.push({
+          material: d.material,
+          spesifikasi: d.spesifikasi,
+          satuan: d.satuan,
+          volumeOut: d.volumeOut,
+        });
+      });
+    });
+
+    material.map((m, i) => {
+      if (detailGoodsIssue[i] && detailGoodsIssue[i].material) {
+        detailGoodsIssue[i].volumeStock = m.volume;
+      }
+    });
+
+    const pdfPath = path.resolve(process.cwd(), "public/goodsIssue.pdf");
+    const pdfBytes = fs.readFileSync(pdfPath);
+
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const page = pdfDoc.getPages()[0];
+
+    detailGoodsIssue.map((d, i) => {
+      page.drawText(`${i + 1}`, {
+        x: 80,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+      page.drawText(`${d.material}`, {
+        x: 120,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+      page.drawText(`${d.spesifikasi}`, {
+        x: 360,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+      page.drawText(`${d.volumeStock}`, {
+        x: 535,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+      page.drawText(`${d.satuan}`, {
+        x: 585,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+      page.drawText(`${d.volumeOut}`, {
+        x: 635,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+      page.drawText(`${d.satuan}`, {
+        x: 690,
+        y: 485 - i * 13,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+    });
+
+    const pdfData = await pdfDoc.save();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="BPPB.pdf"`);
+    res.setHeader("Content-Length", pdfData.length);
+
+    res.end(pdfData);
+  } catch (error) {
+    console.error("Error populating PDF:", error);
+    res.status(500).send("Error populating PDF");
+  }
 });
 
 router.get("/:goodsIssueId", async (req, res) => {
@@ -46,6 +150,7 @@ router.get("/bppb/latest", async (req, res) => {
 });
 
 router.get("/bppb/download/:bppbId", async (req, res) => {
+  const { projectId } = req.userData;
   try {
     const bppb = await prisma.bppb.findUnique({
       where: {
@@ -59,6 +164,12 @@ router.get("/bppb/download/:bppbId", async (req, res) => {
     const requester = await prisma.user.findUnique({
       where: {
         id: bppb.createdByUserId,
+      },
+    });
+
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
       },
     });
 
@@ -93,7 +204,7 @@ router.get("/bppb/download/:bppbId", async (req, res) => {
       size: 10,
       color: rgb(0, 0, 0),
     });
-    page.drawText("1501", {
+    page.drawText(`${project.kode}`, {
       x: 90,
       y: 447,
       size: 10,
@@ -110,7 +221,7 @@ router.get("/bppb/download/:bppbId", async (req, res) => {
         color: rgb(0, 0, 0),
       }
     );
-    page.drawText("TULT", {
+    page.drawText(`${project.nama}`, {
       x: 290,
       y: 447,
       size: 10,
@@ -198,7 +309,6 @@ router.post("/", async (req, res) => {
         DataGoodsIssueId: dataGoodsIssue.id,
         material: d["material"],
         spesifikasi: d["spesifikasi"],
-        volume: parseInt(d["volume"]),
         volumeOut: parseInt(d["volumeOut"]),
         satuan: d["satuan"],
       },

@@ -167,7 +167,6 @@ model DetailGoodsIssue {
   id               Int            @id @default(autoincrement())
   material         String
   spesifikasi      String
-  volume           Int
   volumeOut        Int
   satuan           String
   DataGoodsIssueId Int
