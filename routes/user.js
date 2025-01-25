@@ -7,12 +7,28 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/", accessValidation, (req, res) => {
+router.get("/", async (req, res) => {
+  const user = await prisma.user.findMany();
+  res.send(user);
+});
+
+router.get("/no-pic", async (req, res) => {
+  const user = await prisma.user.findMany({
+    where: {
+      picProject: null,
+    },
+  });
+
+  res.send(user);
+});
+
+router.get("/current", accessValidation, (req, res) => {
   res.send(req.userData);
 });
 
 router.post(
   "/register",
+  accessValidation,
   body(["nama", "nomorHp", "email", "password", "jabatan"]).escape(),
   async (req, res) => {
     // register akun pekerja

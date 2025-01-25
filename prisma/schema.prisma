@@ -52,15 +52,15 @@ model User {
 
 model Project {
   id           Int              @id @default(autoincrement())
-  kode         Int
+  kode         Int              @unique
   nama         String
   lokasi       String
   picProject   PicProject[]
   dataSpp      DataSpp[]
-  sppAcc1Id    Int
-  sppAcc1      User             @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
-  sppAcc2Id    Int
-  sppAcc2      User             @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
+  sppAcc1Id    Int?
+  sppAcc1      User?            @relation("sppAcc1", fields: [sppAcc1Id], references: [id])
+  sppAcc2Id    Int?
+  sppAcc2      User?            @relation("sppAcc2", fields: [sppAcc2Id], references: [id])
   bppb         Bppb[]
   goodsReceipt GoodsReceipt[]
   goodsIssue   DataGoodsIssue[]
