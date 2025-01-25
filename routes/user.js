@@ -46,7 +46,9 @@ router.post(
     const password = req.body.password;
 
     if (email == "" || password == "")
-      return res.status(400).send({ error: "Harap mengisi email dan password!" });
+      return res
+        .status(400)
+        .send({ error: "Harap mengisi email dan password!" });
 
     try {
       const user = await prisma.user.findUnique({
@@ -55,13 +57,26 @@ router.post(
         },
       });
 
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+      if (isPasswordCorrect && user.jabatan == "ADMIN") {
+        const userData = {
+          id: user.id,
+          nama: user.nama,
+          nomorHp: user.nomorHp,
+          email: user.email,
+          jabatan: user.jabatan,
+        };
+
+        const token = jwt.sign(userData, process.env.JWT_ACCESS_TOKEN);
+        return res.send({ token, userData });
+      }
+
       const project = await prisma.picProject.findUnique({
         where: {
           userId: user.id,
         },
       });
-
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
       if (isPasswordCorrect) {
         const userData = {
