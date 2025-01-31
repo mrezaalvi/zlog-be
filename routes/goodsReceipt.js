@@ -139,7 +139,7 @@ router.post(
   "/",
   body(["vendor", "namaPengantar"]).escape(),
   async (req, res) => {
-    const { jabatan } = req.userData;
+    const { jabatan, projectId } = req.userData;
     const {
       noMaterialMasuk,
       noSuratJalan,
@@ -157,6 +157,7 @@ router.post(
           tanggalMasuk,
           vendor,
           namaPengantar,
+          projectId,
         },
       });
 
