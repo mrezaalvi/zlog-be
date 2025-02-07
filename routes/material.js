@@ -21,17 +21,41 @@ router.post("/", async (req, res) => {
 
   const materialArr = [];
   data.forEach(async (d) => {
-    const material = await prisma.material.create({
-      data: {
+    const existingMaterial = await prisma.material.findFirst({
+      where: {
         nama: d.material.toUpperCase(),
         spesifikasi: d.spesifikasi.toUpperCase(),
-        volume: d.volume,
         satuan: d.satuan.toUpperCase(),
-        projectId,
       },
     });
 
-    materialArr.push(material);
+    if (existingMaterial && existingMaterial.nama) {
+      const material = await prisma.material.update({
+        where: {
+          id: existingMaterial.id,
+        },
+        data: {
+          // TODO: update volume column in material table to an int
+          volume: (
+            parseInt(d.volume) + parseInt(existingMaterial.volume)
+          ).toString(),
+        },
+      });
+
+      materialArr.push(material);
+    } else {
+      const material = await prisma.material.create({
+        data: {
+          nama: d.material.toUpperCase(),
+          spesifikasi: d.spesifikasi.toUpperCase(),
+          volume: d.volume,
+          satuan: d.satuan.toUpperCase(),
+          projectId,
+        },
+      });
+
+      materialArr.push(material);
+    }
   });
 
   res.send(materialArr);
